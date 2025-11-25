@@ -1,0 +1,37 @@
+# One-command comprehensive verification
+kubectl exec -it seu-apim-6cd75ddcc6-7426l -n seu-apim -- python -c "
+import os
+import psycopg2
+
+print('🔍 DATABASE CONNECTION VERIFICATION')
+print('=' * 50)
+
+try:
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    cursor = conn.cursor()
+    
+    # Basic connection
+    print('✅ 1. Connection: SUCCESS')
+    
+    # Version check
+    cursor.execute('SELECT version();')
+    print(f'✅ 2. PostgreSQL: {cursor.fetchone()[0].split(\",\")[0]}')
+    
+    # Database info
+    cursor.execute('SELECT current_database(), current_user;')
+    db, user = cursor.fetchone()
+    print(f'✅ 3. Database: {db}, User: {user}')
+    
+    # Simple query test
+    cursor.execute('SELECT 1 as test_value;')
+    result = cursor.fetchone()
+    print(f'✅ 4. Query test: {result[0]}')
+    
+    cursor.close()
+    conn.close()
+    print('✅ 5. Connection closed cleanly')
+    print('🎉 ALL DATABASE CHECKS PASSED!')
+    
+except Exception as e:
+    print(f'❌ VERIFICATION FAILED: {e}')
+"

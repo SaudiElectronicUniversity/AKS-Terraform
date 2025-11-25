@@ -1,0 +1,1 @@
+terraform destroy -auto-approve -target="module.aks" -target="module.postgresql" -target="module.acr" -target="module.keyvault" -target="local_file.kubeconfig" -target="azurerm_role_assignment.acr_pull" -target="azurerm_role_assignment.acr_push" -target="azurerm_role_assignment.keyvault_secrets_officer" -target="azurerm_role_assignment.rolespn"

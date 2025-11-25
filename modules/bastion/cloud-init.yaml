@@ -1,0 +1,65 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - wget
+  - gnupg
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates
+
+runcmd:
+  # Install Azure CLI
+  - curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  
+  # Install kubectl
+  - curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+  - echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+  - apt-get update
+  - apt-get install -y kubectl
+  
+  # Create scripts directory and kube config
+  - mkdir -p /home/adminuser/scripts
+  - mkdir -p /home/adminuser/.kube
+  - chown -R adminuser:adminuser /home/adminuser/scripts /home/adminuser/.kube
+  
+  # Create AKS connection script
+  - cat > /home/adminuser/connect-aks.sh << 'EOF'
+#!/bin/bash
+echo "=== AKS Connection Script ==="
+echo "Getting AKS credentials..."
+az aks get-credentials --resource-group SEU-Test-RG --name SEU-Test-AKS --overwrite-existing
+echo "Testing cluster connection..."
+kubectl cluster-info
+echo "=== AKS Connection Complete ==="
+EOF
+
+  # Make scripts executable
+  - chmod +x /home/adminuser/connect-aks.sh
+  - chown adminuser:adminuser /home/adminuser/connect-aks.sh
+
+  # Set proper permissions
+  - chmod 700 /home/adminuser/.kube
+
+  # Create welcome message with instructions
+  - cat > /etc/update-motd.d/99-bastion-welcome << 'EOF'
+#!/bin/bash
+echo ""
+echo "🚀 SEU AKS Bastion VM Ready!"
+echo "================================"
+echo "Quick Start:"
+echo "  az login            - Login to Azure"
+echo "  ./connect-aks.sh    - Connect to AKS cluster"
+echo "  kubectl get nodes   - Check AKS nodes"
+echo ""
+echo "Your AKS Cluster: SEU-Test-AKS"
+echo "Resource Group: SEU-Test-RG"
+echo "================================"
+echo ""
+EOF
+
+  - chmod +x /etc/update-motd.d/99-bastion-welcome
+
+final_message: "Bastion VM setup completed! Run 'az login' followed by './connect-aks.sh' to connect to your AKS cluster."

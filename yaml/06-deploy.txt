@@ -1,0 +1,22 @@
+# Make script executable
+chmod +x deploy-staging2.sh
+
+# Run deployment
+./deploy-staging2.sh
+
+# Test database connection
+kubectl get pods -n staging2
+kubectl exec -it <pod-name> -n staging2 -- /bin/bash
+
+# Inside pod, test connection:
+pip install psycopg2-binary
+python -c "
+import os
+import psycopg2
+try:
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    print('✅ Database connection successful!')
+    conn.close()
+except Exception as e:
+    print('❌ Database connection failed:', e)
+"

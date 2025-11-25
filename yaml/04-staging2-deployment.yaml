@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-staging2
+  namespace: staging2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: django-app
+      environment: staging2
+  template:
+    metadata:
+      labels:
+        app: django-app
+        environment: staging2
+    spec:
+      containers:
+      - name: django-app
+        image: python:3.11-slim
+        ports:
+        - containerPort: 8000
+        command: ["sleep", "3600"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: django-db-secret
+              key: staging-connection-string
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: django-secret
+              key: secret-key
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

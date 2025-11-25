@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-staging2-service
+  namespace: staging2
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "seuaks-staging-lb-subnet"
+spec:
+  type: LoadBalancer
+  selector:
+    app: django-app
+    environment: staging2
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
