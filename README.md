@@ -1,3 +1,2 @@
-# Architecture diagram
 
-![architecture](aks_arch.png)
+AKS-Terraform 
