@@ -7,7 +7,7 @@ metadata:
     app: seu-apim
     version: v1
 spec:
-  replicas: 4
+  replicas: 3
   selector:
     matchLabels:
       app: seu-apim
@@ -21,6 +21,9 @@ spec:
       labels:
         app: seu-apim
         azure.workload.identity/use: "true"
+      annotations:
+        # Add this - it forces restart on every deployment
+        rollme: "{{BUILD_ID}}"
     spec:
       serviceAccountName: workload-identity-sa
       imagePullSecrets:
