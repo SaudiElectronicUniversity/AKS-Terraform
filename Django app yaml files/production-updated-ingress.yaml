@@ -17,10 +17,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - py.seu.edu.sa
+    - apim.seu.edu.sa
     secretName: seu-apim-tls
   rules:
-  - host: py.seu.edu.sa
+  - host: apim.seu.edu.sa
     http:
       paths:
       - path: /
